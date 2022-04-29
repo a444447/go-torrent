@@ -13,12 +13,12 @@ func checkNum(data byte) bool {
 
 func WriteDecimal(bw *bufio.Writer, val int) (len int) {
 	if val < 0 {
-		bw.WriteByte('-')
+		_ = bw.WriteByte('-')
 		len++
 	}
 	val = int(math.Abs(float64(val)))
 	valStr := fmt.Sprintf("%d", val)
-	bw.Write([]byte(valStr))
+	_, _ = bw.Write([]byte(valStr))
 	for val > 0 {
 		val /= 10
 		len++
@@ -47,20 +47,20 @@ func ReadDecimal(br *bufio.Reader) (val int, len int) {
 		len++
 	}
 
-	return -1, -1
+	//return -1, -1
 }
 
 func EncodeInt(w io.Writer, val int) int {
 	bw := bufio.NewWriter(w)
 	WritingLen := 0
 	//先写入i
-	bw.WriteByte('i')
+	_ = bw.WriteByte('i')
 	WritingLen++
 	//再写入数字
 	nLen := WriteDecimal(bw, val)
 	WritingLen += nLen
 	//写入e
-	bw.WriteByte('e')
+	_ = bw.WriteByte('e')
 	WritingLen++
 
 	err := bw.Flush() //将buff中的数据写入到io.Writer中
@@ -91,9 +91,9 @@ func EncodeString(w io.Writer, val string) int {
 	strLen := len(val)
 	bw := bufio.NewWriter(w)
 	wLen := WriteDecimal(bw, strLen)
-	bw.WriteByte(':')
+	_ = bw.WriteByte(':')
 	wLen++
-	bw.WriteString(val)
+	_, _ = bw.WriteString(val)
 	wLen += strLen
 
 	err := bw.Flush()

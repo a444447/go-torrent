@@ -1,6 +1,9 @@
 package Bencode
 
-import "testing"
+import (
+	"bytes"
+	"testing"
+)
 
 const checkMark = "\u2713"
 const ballotX = "\u2717"
@@ -29,4 +32,27 @@ func TestBobject_STR(t *testing.T) {
 		t.Fatal("\t\tFalse\t", ballotX, err)
 	}
 	t.Log("\t\tSuccess\t", res, checkMark)
+}
+
+func TestBencode(t *testing.T) {
+	ObjectSTR := Bobject{
+		type_: BtypeofSTR,
+		val_:  "hello",
+	}
+
+	ObjectInt := Bobject{
+		type_: BtypeofINT,
+		val_:  2200,
+	}
+
+	ObjectList := Bobject{
+		type_: BtypeofLIST,
+		val_:  []*Bobject{&ObjectInt, &ObjectSTR},
+	}
+	buf := new(bytes.Buffer)
+	LEN := ObjectList.Bencode(buf)
+	if LEN != 15 {
+		t.Fatal("\tBencode Fail ", LEN, ballotX)
+	}
+	t.Log("\tBencode Success\n\t\t ", buf, checkMark)
 }

@@ -1,6 +1,10 @@
 package Bencode
 
-import "errors"
+import (
+	"bufio"
+	"errors"
+	"io"
+)
 
 type Btype uint8
 
@@ -47,4 +51,45 @@ func (o *Bobject) DICT() (map[string]*Bobject, error) {
 		return nil, errors.New("type Error : Need dict")
 	}
 	return o.val_.(map[string]*Bobject), nil
+}
+
+func (o *Bobject) Bencode(w io.Writer) int {
+	bw, ok := w.(*bufio.Writer)
+	if !ok {
+		bw = bufio.NewWriter(w)
+	}
+	wLen := 0
+	switch o.type_ {
+	case BtypeofINT:
+		val, _ := o.INT()
+		wLen += EncodeInt(bw, val)
+
+	case BtypeofSTR:
+		val, _ := o.STR()
+		wLen += EncodeString(bw, val)
+
+	case BtypeofLIST:
+		val, _ := o.LIST()
+		bw.WriteByte('l')
+		wLen++
+		for _, v := range val {
+			wLen += v.Bencode(bw)
+		}
+		bw.WriteByte('e')
+		wLen++
+
+	case BtypeofDICT:
+		val, _ := o.DICT()
+		bw.WriteByte('d')
+		wLen++
+		for k, v := range val {
+			wLen += EncodeString(bw, k)
+			wLen += v.Bencode(bw)
+		}
+	}
+
+	_ = bw.Flush()
+
+	return wLen
+
 }
