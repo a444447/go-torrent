@@ -53,8 +53,8 @@ func (o *Bobject) DICT() (map[string]*Bobject, error) {
 	return o.val_.(map[string]*Bobject), nil
 }
 
-func (o *Bobject) Bencode(w io.Writer) int {
-	bw, ok := w.(*bufio.Writer)
+func (o *Bobject) Bencode(w io.Writer) int { //将Bobject进行Bencode编码
+	bw, ok := w.(*bufio.Writer) //进行断言，看传入的w是否是bufio.Writer，否则新建一个
 	if !ok {
 		bw = bufio.NewWriter(w)
 	}
@@ -73,7 +73,7 @@ func (o *Bobject) Bencode(w io.Writer) int {
 		bw.WriteByte('l')
 		wLen++
 		for _, v := range val {
-			wLen += v.Bencode(bw)
+			wLen += v.Bencode(bw) //把每个Bobject都进行编码
 		}
 		bw.WriteByte('e')
 		wLen++
@@ -83,13 +83,15 @@ func (o *Bobject) Bencode(w io.Writer) int {
 		bw.WriteByte('d')
 		wLen++
 		for k, v := range val {
-			wLen += EncodeString(bw, k)
-			wLen += v.Bencode(bw)
+			wLen += EncodeString(bw, k) //将key编码
+			wLen += v.Bencode(bw)       //将value进行Bencode编码
 		}
+		bw.WriteByte('e')
+		wLen++
 	}
 
 	_ = bw.Flush()
 
-	return wLen
+	return wLen //返回总共向buff中写入了多少byte
 
 }

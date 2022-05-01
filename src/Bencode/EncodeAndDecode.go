@@ -70,7 +70,7 @@ func EncodeInt(w io.Writer, val int) int {
 	return WritingLen
 }
 
-func DecodeInt(r io.Reader) (val int, err error) {
+func DecodeInt(r io.Reader) (val int, err error) { //用于将Stream中的文本流转换为Bobject
 	br, ok := r.(*bufio.Reader)
 	if !ok {
 		br = bufio.NewReader(r)
