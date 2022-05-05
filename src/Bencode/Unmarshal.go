@@ -9,22 +9,29 @@ import (
 
 // Unmarshal r是我们读入的buffer, s是我们传入的结构，我们要将值填在其中的field中,因此需要传入指针
 func Unmarshal(r io.Reader, s interface{}) error {
-	o, err := Parse(r)
+	o, err := Parse(r) //将buffer中的文本流 处理为Bobject
 	if err != nil {
 		return errors.New("parse Error")
 	}
-	p := reflect.ValueOf(s)
+	p := reflect.ValueOf(s)      //传入的s必须是一个指针，返回一个s类型的reflect.value
 	if p.Kind() != reflect.Ptr { //判断s是否是指针
 		return errors.New("second parameter must be a pointer")
 	}
-	switch o.type_ {
+	switch o.type_ { //判断我们得到的Bobject类型
 	case BtypeofLIST:
 		list, _ := o.LIST()
-		l := reflect.MakeSlice(p.Elem().Type(), len(list), len(list))
-		p.Elem().Set(l) //将新建的slice l 分配给p
-
+		l := reflect.MakeSlice(p.Elem().Type(), len(list), len(list)) // p.Elem()类似于指针取值的*操作，p.Elem().Type()得到的是 s{}的类型
+		p.Elem().Set(l)                                               //将新建的slice l 分配给p
+		err := unmarshalList(p, list)                                 //我们用unmarshalList将list的中的值设置到p中
+		if err != nil {
+			return err
+		}
 	case BtypeofDICT:
-
+		dict, _ := o.DICT()
+		err = unmarshalDict(p, dict)
+		if err != nil {
+			return err
+		}
 	default:
 		return errors.New("first parameter must be struct or slice")
 	}
@@ -33,11 +40,11 @@ func Unmarshal(r io.Reader, s interface{}) error {
 }
 
 func unmarshalList(p reflect.Value, list []*Bobject) error {
-	if p.Kind() != reflect.Ptr || p.Elem().Type().Kind() != reflect.Slice {
+	if p.Kind() != reflect.Ptr || p.Elem().Type().Kind() != reflect.Slice { //判断p是否是指针
 		return errors.New("second parameter must be pointer to slice")
 	}
 
-	v := p.Elem()
+	v := p.Elem() // 取值操作
 	if len(list) == 0 {
 		return nil
 	}
