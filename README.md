@@ -67,3 +67,19 @@ Bencode虽然不如JSON一样可读，但是有一个优势就是很容易从流
 例如,数字`7`表示为`i7e`,`4:spam`表示字符串spam,`l4:spami7e` 表示 `['spam',7]`，`d4:spami7ee` 表示 `{spam:7}`。
 > 注意:`list`,`int`,`dict`都是以l,i,d开头，e结尾
 
+
+## 进度(BitTorrent简易下载器)
+Bencode 解析库 &#x2713;
+
+Tracker交互 &#x2713;
+
+获得Peers列表 &#x2713;
+
+peers的连接 &#x2713;
+
+Pieces组合 &#x2717;
+
+并发管理 &#x2717;
+
+
+
